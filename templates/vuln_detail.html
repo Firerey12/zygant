@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Vulnerability Detail</h2>
+
+<p><strong>CVE:</strong> {{ vuln[1] }}</p>
+<p><strong>CVSS:</strong> {{ vuln[3] }}</p>
+<p><strong>Priority:</strong> {{ vuln[8] }}</p>
+<p><strong>Description:</strong> {{ vuln[4] }}</p>
+
+{% if report_exists %}
+    <a href="/download/{{ vuln[0] }}">
+        <button>Download Report</button>
+    </a>
+{% else %}
+    <form method="POST">
+        <button type="submit">Generate Report</button>
+    </form>
+{% endif %}
+
+{% if report %}
+    <h3>Generated Report</h3>
+    <pre>{{ report }}</pre>
+{% endif %}
+
+{% endblock %}

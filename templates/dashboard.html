@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Dashboard</h2>
+
+<table border="1">
+    <tr>
+        <th>CVE</th>
+        <th>Score</th>
+        <th>Priority</th>
+    </tr>
+
+    {% for v in vulns %}
+    <tr>
+        <td><a href="/vuln/{{ v[0] }}">{{ v[1] }}</a></td>
+        <td>{{ v[2] }}</td>
+        <td>{{ v[3] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
