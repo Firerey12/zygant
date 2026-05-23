@@ -1,22 +1,125 @@
 {% extends "base.html" %}
+{% block title %}ZYGANT — Dashboard{% endblock %}
+{% block nav_home %}active{% endblock %}
 
 {% block content %}
-<h2>Dashboard</h2>
 
-<table border="1">
-    <tr>
-        <th>CVE</th>
-        <th>Score</th>
-        <th>Priority</th>
-    </tr>
+<div class="page-header">
+  <h1>// VULNERABILITY DASHBOARD</h1>
+  <p>Overview of scan results and prioritization output — placeholder data</p>
+</div>
 
-    {% for v in vulns %}
-    <tr>
-        <td><a href="/vuln/{{ v[0] }}">{{ v[1] }}</a></td>
-        <td>{{ v[2] }}</td>
-        <td>{{ v[3] }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<!-- Stats -->
+<div class="stat-grid mb-2">
+  <div class="stat-card critical">
+    <div class="stat-label">Critical</div>
+    <div class="stat-value">12</div>
+  </div>
+  <div class="stat-card high">
+    <div class="stat-label">High</div>
+    <div class="stat-value">34</div>
+  </div>
+  <div class="stat-card medium">
+    <div class="stat-label">Medium</div>
+    <div class="stat-value">58</div>
+  </div>
+  <div class="stat-card low">
+    <div class="stat-label">Low</div>
+    <div class="stat-value">91</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-label">Total Vulns</div>
+    <div class="stat-value">195</div>
+  </div>
+</div>
+
+<!-- Charts: Pre vs Post Prioritization -->
+<div class="grid-2 mb-2">
+  <div class="card">
+    <div class="card-title">PRE-PRIORITIZATION — Raw CVSS Distribution</div>
+    <div class="chart-placeholder">[ CHART PLACEHOLDER — CVSS Score Distribution ]</div>
+    <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-top:0.75rem;">
+      Raw severity scoring before ZYGANT prioritization engine is applied.
+      Data source: NVD / OpenVAS output.
+    </p>
+  </div>
+  <div class="card">
+    <div class="card-title">POST-PRIORITIZATION — ZYGANT Risk Score</div>
+    <div class="chart-placeholder">[ CHART PLACEHOLDER — ZYGANT Risk Score Distribution ]</div>
+    <p style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-top:0.75rem;">
+      Re-ranked vulnerabilities after applying Tier 1 ML scoring, Tier 2 KEV boost,
+      and Tier 3 contextual awareness.
+    </p>
+  </div>
+</div>
+
+<!-- CVE Table -->
+<div class="card">
+  <div class="card-title">CVE INVENTORY — Mock Data</div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>CVE ID</th>
+          <th>Severity</th>
+          <th>CVSS</th>
+          <th>Description</th>
+          <th>Affected Asset</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono text-accent">CVE-2024-1234</td>
+          <td><span class="badge badge-critical">Critical</span></td>
+          <td class="mono">9.8</td>
+          <td>Remote code execution via buffer overflow in OpenSSL</td>
+          <td class="mono">web-server-01</td>
+          <td><span class="badge badge-open">Open</span></td>
+        </tr>
+        <tr>
+          <td class="mono text-accent">CVE-2023-4567</td>
+          <td><span class="badge badge-high">High</span></td>
+          <td class="mono">8.1</td>
+          <td>Privilege escalation in Linux kernel networking stack</td>
+          <td class="mono">db-server-02</td>
+          <td><span class="badge badge-review">In Review</span></td>
+        </tr>
+        <tr>
+          <td class="mono text-accent">CVE-2024-7891</td>
+          <td><span class="badge badge-high">High</span></td>
+          <td class="mono">7.5</td>
+          <td>SQL injection vulnerability in authentication module</td>
+          <td class="mono">app-server-03</td>
+          <td><span class="badge badge-open">Open</span></td>
+        </tr>
+        <tr>
+          <td class="mono text-accent">CVE-2023-2222</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td class="mono">5.4</td>
+          <td>Cross-site scripting (XSS) in web dashboard component</td>
+          <td class="mono">web-server-01</td>
+          <td><span class="badge badge-resolved">Resolved</span></td>
+        </tr>
+        <tr>
+          <td class="mono text-accent">CVE-2024-3310</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td class="mono">6.1</td>
+          <td>Insecure deserialization in API endpoint handler</td>
+          <td class="mono">api-gateway-01</td>
+          <td><span class="badge badge-open">Open</span></td>
+        </tr>
+        <tr>
+          <td class="mono text-accent">CVE-2023-9900</td>
+          <td><span class="badge badge-low">Low</span></td>
+          <td class="mono">3.2</td>
+          <td>Information disclosure via verbose error messages</td>
+          <td class="mono">app-server-03</td>
+          <td><span class="badge badge-resolved">Resolved</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
 {% endblock %}
