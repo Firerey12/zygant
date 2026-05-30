@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}ZYGANT — Asset Inventory{% endblock %}
+{% block nav_assets %}active{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>// ASSET INVENTORY</h1>
+  <p>All registered hosts, IP addresses, operating systems and assigned risk levels</p>
+</div>
+
+<!-- Summary Stats -->
+<div class="stat-grid mb-2">
+  <div class="stat-card critical">
+    <div class="stat-label">Critical Assets</div>
+    <div class="stat-value">2</div>
+  </div>
+  <div class="stat-card high">
+    <div class="stat-label">High Risk</div>
+    <div class="stat-value">3</div>
+  </div>
+  <div class="stat-card medium">
+    <div class="stat-label">Medium Risk</div>
+    <div class="stat-value">4</div>
+  </div>
+  <div class="stat-card low">
+    <div class="stat-label">Low Risk</div>
+    <div class="stat-value">2</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-label">Total Assets</div>
+    <div class="stat-value">11</div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card mb-2" style="padding: 1rem 1.5rem;">
+  <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+      <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary);">RISK LEVEL</label>
+      <select style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 2px;">
+        <option>All</option>
+        <option>Critical</option>
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+      <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary);">ASSET TYPE</label>
+      <select style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 2px;">
+        <option>All Types</option>
+        <option>Web Server</option>
+        <option>Database</option>
+        <option>App Server</option>
+        <option>Gateway</option>
+        <option>Endpoint</option>
+      </select>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.25rem; flex: 1; min-width: 200px;">
+      <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary);">SEARCH</label>
+      <input type="text" placeholder="Search hostname or IP..." style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 2px; width: 100%;" />
+    </div>
+  </div>
+</div>
+
+<!-- Asset Table -->
+<div class="card">
+  <div class="card-title">REGISTERED ASSETS — Mock Data</div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Hostname</th>
+          <th>IP Address</th>
+          <th>Operating System</th>
+          <th>Type</th>
+          <th>Owner</th>
+          <th>Risk Level</th>
+          <th>Last Scanned</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono text-muted">001</td>
+          <td class="mono">web-server-01</td>
+          <td class="mono text-accent">192.168.1.10</td>
+          <td>Ubuntu 22.04 LTS</td>
+          <td>Web Server</td>
+          <td>IT Ops</td>
+          <td><span class="badge badge-critical">Critical</span></td>
+          <td class="mono">2025-05-14</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">002</td>
+          <td class="mono">db-server-02</td>
+          <td class="mono text-accent">192.168.1.20</td>
+          <td>CentOS 8</td>
+          <td>Database</td>
+          <td>DBA Team</td>
+          <td><span class="badge badge-high">High</span></td>
+          <td class="mono">2025-05-14</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">003</td>
+          <td class="mono">app-server-03</td>
+          <td class="mono text-accent">192.168.1.30</td>
+          <td>Debian 11</td>
+          <td>App Server</td>
+          <td>Dev Team</td>
+          <td><span class="badge badge-high">High</span></td>
+          <td class="mono">2025-05-13</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">004</td>
+          <td class="mono">api-gateway-01</td>
+          <td class="mono text-accent">192.168.1.40</td>
+          <td>Ubuntu 20.04 LTS</td>
+          <td>Gateway</td>
+          <td>IT Ops</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td class="mono">2025-05-13</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">005</td>
+          <td class="mono">mail-server-01</td>
+          <td class="mono text-accent">192.168.1.50</td>
+          <td>Ubuntu 20.04 LTS</td>
+          <td>Mail Server</td>
+          <td>IT Ops</td>
+          <td><span class="badge badge-high">High</span></td>
+          <td class="mono">2025-05-12</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">006</td>
+          <td class="mono">workstation-04</td>
+          <td class="mono text-accent">192.168.2.10</td>
+          <td>Windows 11 Pro</td>
+          <td>Endpoint</td>
+          <td>HR Dept</td>
+          <td><span class="badge badge-low">Low</span></td>
+          <td class="mono">2025-05-12</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">007</td>
+          <td class="mono">workstation-05</td>
+          <td class="mono text-accent">192.168.2.11</td>
+          <td>Windows 10 Pro</td>
+          <td>Endpoint</td>
+          <td>Finance</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td class="mono">2025-05-12</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">008</td>
+          <td class="mono">backup-server-01</td>
+          <td class="mono text-accent">192.168.1.60</td>
+          <td>Debian 11</td>
+          <td>Backup Server</td>
+          <td>IT Ops</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td class="mono">2025-05-11</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">009</td>
+          <td class="mono">firewall-01</td>
+          <td class="mono text-accent">192.168.0.1</td>
+          <td>pfSense 2.7</td>
+          <td>Firewall</td>
+          <td>IT Ops</td>
+          <td><span class="badge badge-critical">Critical</span></td>
+          <td class="mono">2025-05-14</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">010</td>
+          <td class="mono">dev-machine-01</td>
+          <td class="mono text-accent">192.168.3.10</td>
+          <td>Ubuntu 22.04 LTS</td>
+          <td>Dev Machine</td>
+          <td>Dev Team</td>
+          <td><span class="badge badge-medium">Medium</span></td>
+          <td class="mono">2025-05-10</td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">011</td>
+          <td class="mono">workstation-06</td>
+          <td class="mono text-accent">192.168.2.12</td>
+          <td>Windows 11 Pro</td>
+          <td>Endpoint</td>
+          <td>Marketing</td>
+          <td><span class="badge badge-low">Low</span></td>
+          <td class="mono">2025-05-10</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,13 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Vuln Prioritization</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}ZYGANT{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <h1>AI Vulnerability Prioritization</h1>
-    <a href="/">Dashboard</a> |
-    <a href="/upload">Upload</a>
-    <hr>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="brand-icon">⬡</span>
+      <span class="brand-name">ZYGANT</span>
+      <span class="brand-tag">// VULN INTEL</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="/" class="nav-link {% block nav_home %}{% endblock %}">Dashboard</a></li>
+      <li><a href="/assets" class="nav-link {% block nav_assets %}{% endblock %}">Assets</a></li>
+      <li><a href="/scan" class="nav-link {% block nav_scan %}{% endblock %}">Scan</a></li>
+      <li><a href="/cve" class="nav-link {% block nav_cve %}{% endblock %}">CVE Details</a></li>
+      <li><a href="/users" class="nav-link {% block nav_users %}{% endblock %}">Users</a></li>
+      <li><a href="/audit" class="nav-link {% block nav_audit %}{% endblock %}">Audit Logs</a></li>
+      <li><a href="/reports" class="nav-link {% block nav_reports %}{% endblock %}">Reports</a></li>
+      <li><a href="/support" class="nav-link {% block nav_support %}{% endblock %}">Support</a></li>
+    </ul>
+    <div class="nav-status">
+      <span class="status-dot"></span>
+      <span class="status-text">SYSTEM ONLINE</span>
+    </div>
+  </nav>
+
+  <main class="main-content">
     {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <span>ZYGANT &copy; 2025 &mdash; Group 11 &mdash; Sheridan College INFO49402</span>
+    <span class="footer-right">AI-Powered Vulnerability Prioritization</span>
+  </footer>
+
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

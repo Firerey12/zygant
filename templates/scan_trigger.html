@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}ZYGANT — Scan Trigger{% endblock %}
+{% block nav_scan %}active{% endblock %}
+ 
+{% block content %}
+ 
+<div class="page-header">
+  <h1>// SCAN TRIGGER</h1>
+  <p>Launch a vulnerability scan against the registered asset inventory</p>
+</div>
+ 
+<!-- Status + Trigger -->
+<div class="grid-2 mb-2">
+ 
+  <!-- Trigger Panel -->
+  <div class="card" style="display: flex; flex-direction: column; gap: 1rem;">
+    <div class="card-title">TRIGGER NEW SCAN</div>
+ 
+    <!-- Status Indicator -->
+    <div id="status-box" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-secondary); border-radius: 3px; border: 1px solid var(--border);">
+      <div id="status-dot" style="width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0;"></div>
+      <div>
+        <div id="status-label" style="font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 2px; color: var(--text-secondary);">STATUS: IDLE</div>
+        <div id="status-sub" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">No scan currently running</div>
+      </div>
+    </div>
+ 
+    <!-- Config -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+      <div>
+        <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">SCAN TYPE</label>
+        <select id="scan-type" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.4rem 0.75rem; border-radius: 2px;">
+          <option>Full Scan</option>
+          <option>Quick Scan</option>
+          <option>Custom Range</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">TARGET SCOPE</label>
+        <select id="scan-scope" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.4rem 0.75rem; border-radius: 2px;">
+          <option>All Assets</option>
+          <option>Servers Only</option>
+          <option>Endpoints Only</option>
+          <option>Single Asset</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">SCHEDULE</label>
+        <select style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.4rem 0.75rem; border-radius: 2px;">
+          <option>Run Now</option>
+          <option>Schedule for Later</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">NOTIFICATION</label>
+        <select style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.4rem 0.75rem; border-radius: 2px;">
+          <option>Email on Complete</option>
+          <option>No Notification</option>
+        </select>
+      </div>
+    </div>
+ 
+    <!-- Run Button -->
+    <button id="scan-btn" onclick="triggerScan()" style="padding: 0.7rem; background: var(--accent); color: #000; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 2px; font-weight: 700; border: none; border-radius: 2px; cursor: pointer; transition: opacity 0.2s;">
+      ▶ RUN VULNERABILITY SCAN
+    </button>
+    <p style="font-size: 0.78rem; color: var(--text-muted);">
+      Scans all assets using Nmap + OpenVAS. Results will be parsed and written to the database.
+    </p>
+  </div>
+ 
+  <!-- Live Log Panel -->
+  <div class="card">
+    <div class="card-title">SCAN OUTPUT LOG</div>
+    <div id="scan-log" style="background: var(--bg-primary); border: 1px solid var(--border); border-radius: 3px; padding: 1rem; height: 280px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); line-height: 1.9;">
+      <span style="color: var(--text-muted);">[ Awaiting scan trigger... ]</span>
+    </div>
+  </div>
+ 
+</div>
+ 
+<!-- Recent Scans -->
+<div class="card">
+  <div class="card-title">RECENT SCANS</div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Scan ID</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Scope</th>
+          <th>Assets Scanned</th>
+          <th>Vulns Found</th>
+          <th>Critical</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono text-accent">SCN-0042</td>
+          <td class="mono">2025-05-14</td>
+          <td>Full Scan</td>
+          <td>All Assets</td>
+          <td class="mono">11</td>
+          <td class="mono">195</td>
+          <td class="mono text-danger">12</td>
+          <td><span class="badge badge-low">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="mono text-accent">SCN-0041</td>
+          <td class="mono">2025-05-07</td>
+          <td>Quick Scan</td>
+          <td>Servers Only</td>
+          <td class="mono">5</td>
+          <td class="mono">88</td>
+          <td class="mono text-danger">5</td>
+          <td><span class="badge badge-low">Complete</span></td>
+        </tr>
+        <tr>
+          <td class="mono text-accent">SCN-0040</td>
+          <td class="mono">2025-04-30</td>
+          <td>Full Scan</td>
+          <td>All Assets</td>
+          <td class="mono">11</td>
+          <td class="mono">210</td>
+          <td class="mono text-danger">15</td>
+          <td><span class="badge badge-low">Complete</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+ 
+{% endblock %}
+ 
+{% block extra_js %}
+<script>
+let scanning = false;
+ 
+const logLines = [
+  "[INFO]  Initializing scan engine...",
+  "[INFO]  Loading asset inventory from database...",
+  "[INFO]  11 assets found in scope.",
+  "[INFO]  Starting Nmap host discovery...",
+  "[OK]    192.168.1.10 (web-server-01) — host up",
+  "[OK]    192.168.1.20 (db-server-02) — host up",
+  "[OK]    192.168.1.30 (app-server-03) — host up",
+  "[OK]    192.168.1.40 (api-gateway-01) — host up",
+  "[OK]    192.168.1.50 (mail-server-01) — host up",
+  "[INFO]  Running OpenVAS plugin checks...",
+  "[WARN]  CVE-2024-1234 detected on 192.168.1.10 (CVSS 9.8)",
+  "[WARN]  CVE-2023-4567 detected on 192.168.1.20 (CVSS 8.1)",
+  "[WARN]  CVE-2024-7891 detected on 192.168.1.30 (CVSS 7.5)",
+  "[INFO]  Parsing XML output...",
+  "[INFO]  Writing results to database...",
+  "[OK]    Scan complete. 195 vulnerabilities recorded.",
+];
+ 
+function triggerScan() {
+  if (scanning) return;
+  scanning = true;
+ 
+  const btn = document.getElementById('scan-btn');
+  const dot = document.getElementById('status-dot');
+  const lbl = document.getElementById('status-label');
+  const sub = document.getElementById('status-sub');
+  const log = document.getElementById('scan-log');
+ 
+  btn.disabled = true;
+  btn.style.opacity = '0.4';
+  btn.textContent = '⏳ SCANNING...';
+ 
+  dot.style.background = 'var(--warning)';
+  dot.style.boxShadow = '0 0 8px var(--warning)';
+  lbl.style.color = 'var(--warning)';
+  lbl.textContent = 'STATUS: RUNNING';
+  sub.textContent = 'Scan in progress — please wait';
+ 
+  log.innerHTML = '';
+ 
+  logLines.forEach((line, i) => {
+    setTimeout(() => {
+      const color = line.startsWith('[OK]') ? 'var(--success)' :
+                    line.startsWith('[WARN]') ? 'var(--warning)' :
+                    line.startsWith('[INFO]') ? 'var(--text-secondary)' : 'var(--text-muted)';
+      log.innerHTML += `<div style="color:${color}">${line}</div>`;
+      log.scrollTop = log.scrollHeight;
+ 
+      if (i === logLines.length - 1) {
+        setTimeout(() => {
+          dot.style.background = 'var(--success)';
+          dot.style.boxShadow = '0 0 8px var(--success)';
+          lbl.style.color = 'var(--success)';
+          lbl.textContent = 'STATUS: COMPLETE';
+          sub.textContent = 'Last scan finished — 195 vulnerabilities recorded';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.textContent = '▶ RUN VULNERABILITY SCAN';
+          scanning = false;
+        }, 600);
+      }
+    }, i * 400);
+  });
+}
+</script>
+{% endblock %}
+ 
