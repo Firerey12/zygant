@@ -1,7 +1,7 @@
 import pandas as pd
 from joblib import load
 
-model = load("model/lightgbm_pipeline.joblib")
+model = load("../model/lightgbm_pipeline.joblib")
 
 def map_priority(score):
     if score >= 0.85:
