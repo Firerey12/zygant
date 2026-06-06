@@ -7,6 +7,8 @@ from requests.auth import HTTPBasicAuth
 from scoring import score_dataframe
 import requests
 from itertools import islice
+from datetime import datetime
+import sqlite3
 
 load_dotenv()
 
@@ -72,6 +74,8 @@ def get_nvd_metrics(cve_ids):
 
             metrics = cve.get("metrics", {})
 
+            published_date = cve.get("published")
+
             cvss = None
 
             # Prefer CVSS 3.1
@@ -92,6 +96,8 @@ def get_nvd_metrics(cve_ids):
             cvss_data = cvss.get("cvssData", {})
 
             nvd_lookup[cve_id] = {
+                "published_date": published_date,
+
                 "baseseverity":
                     cvss_data.get("baseSeverity")
                     or cvss.get("baseSeverity"),
@@ -258,5 +264,131 @@ df = df.merge(
     on="cve_id"
 )
 
+# Convert NVD timestamp
+df["published_date"] = pd.to_datetime(
+    df["published_date"],
+    errors="coerce",
+    utc=True
+)
+
+# Current UTC timestamp
+now = pd.Timestamp.utcnow()
+
+df["days_since_published"] = (
+    now - df["published_date"]
+).dt.days
+
+df["days_since_published"] = (
+    df["days_since_published"]
+    .fillna(-1)
+    .astype(int)
+)
+
 scored_df = score_dataframe(df)
 print(scored_df.head())
+
+conn = sqlite3.connect(DB_PATH)
+c = conn.cursor()
+
+for _, row in scored_df.iterrows():
+    c.execute("""
+        INSERT INTO vulnerabilities (
+            agent_id,
+            agent_name,
+            cve_id,
+            published_at,
+            cvss_base_score,
+            package_name,
+            package_version,
+            description,
+            is_kev,
+            epss_percentile,
+            predicted_score,
+            final_score,
+            priority
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        row.get("cve_id"),
+        row.get("published"),
+        row.get("cvss_base_score"),
+        row.get("description"),
+        int(row.get("is_kev", 0)),
+        row.get("epss_percentile"),
+        row.get("lightgbm_predicted_score"),
+        row.get("final_score"),
+        row.get("priority")
+    ))
+
+
+import requests
+
+response = requests.get(
+    f"{WAZUH_URL}/agents",
+    auth=HTTPBasicAuth(WAZUH_USER, WAZUH_PASS),
+    verify=False
+)
+
+agents = response.json()["data"]["affected_items"]
+
+def get_agent_os(agent_id, token):
+
+    response = requests.get(
+        f"{WAZUH_URL}/syscollector/{agent_id}/os",
+        auth=HTTPBasicAuth(WAZUH_USER, WAZUH_PASS),
+        verify=False
+    )
+
+    response.raise_for_status()
+
+    items = response.json()["data"]["affected_items"]
+
+    return items[0] if items else {}
+
+def get_agent_hardware(agent_id):
+
+    response = requests.get(
+        f"{WAZUH_URL}/syscollector/{agent_id}/hardware",
+        auth=HTTPBasicAuth(WAZUH_USER, WAZUH_PASS),
+        verify=False
+    )
+
+    response.raise_for_status()
+
+    items = response.json()["data"]["affected_items"]
+
+    return items[0] if items else {}
+
+
+agent_lookup = {}
+
+for agent in agents:
+
+    agent_id = agent["id"]
+
+    os_info = get_agent_os(agent_id)
+
+    agent_lookup[agent_id] = {
+        "agent_name": agent.get("name"),
+        "agent_ip": agent.get("ip"),
+        "agent_status": agent.get("status"),
+        "agent_version": agent.get("version"),
+
+        "os_name": os_info.get("os", {}).get("name"),
+        "os_version": os_info.get("os", {}).get("version"),
+        "architecture": os_info.get("architecture")
+    }
+
+agent_df = pd.DataFrame.from_dict(
+    agent_lookup,
+    orient="index"
+)
+
+agent_df.index.name = "agent_id"
+
+agent_df.reset_index(inplace=True)
+
+df = df.merge(
+    agent_df,
+    how="left",
+    on="agent_id"
+)
