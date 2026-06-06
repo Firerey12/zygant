@@ -1,54 +1,151 @@
-# ZYGANT — AI-Powered Vulnerability Prioritization
+# ZYGANT - AI-Powered Vulnerability Prioritization Engine
 
 ## Overview
-ZYGANT is an AI-driven vulnerability prioritization platform designed to help security teams identify, rank, and remediate the most critical vulnerabilities first. Traditional vulnerability management approaches rely heavily on static severity scores such as CVSS, which often fail to consider real-world exploitability and organization-specific risk context.
 
-Our platform combines machine learning, threat intelligence, and automation to prioritize vulnerabilities based on:
-- Real-world exploitability
-- Organizational risk
-- Threat intelligence correlation
-- Vulnerability impact
+ZYGANT is an AI-powered vulnerability prioritization engine designed to help organizations identify, rank, and remediate cybersecurity vulnerabilities based on real-world risk.
 
-## The Problem
-Most organizations manage hundreds or thousands of vulnerabilities at any given time. Traditional scoring systems like CVSS assign severity based on general characteristics — not on whether a vulnerability is actively being exploited, or how critical the affected asset is to your organization. This leads to wasted remediation effort, misallocated resources, and real threats going unaddressed.
+Traditional vulnerability management programs often rely heavily on CVSS scores, which provide a severity rating but do not account for exploitation likelihood, active threat intelligence, or organization-specific risk factors. As a result, security teams may spend valuable time remediating vulnerabilities that pose little immediate risk while overlooking those that are more likely to be exploited.
 
-ZYGANT was built to fix that.
+ZYGANT addresses this challenge by combining machine learning, threat intelligence, and contextual risk analysis to generate a more meaningful vulnerability prioritization score.
 
-## What we built
-A full-stack web platform that ingests vulnerability scan data, runs it through a multi-tier AI prioritization engine, and delivers analyst-ready reports through a centralized dashboard.
+---
 
-## Core Features
+## Project Objectives
 
-### Multi-Tier AI Prioritization Engine
-The heart of the platform. Every vulnerability is scored across three progressive layers to produce a final risk ranking that reflects reality, not just textbook severity:
+The primary objectives of ZYGANT are to:
 
-- Tier 1 — ML Predicted Score: A machine learning model trained on real-world exploitability data to predict which vulnerabilities pose the greatest immediate risk.
-- Tier 2 — KEV Boost: Automatic priority escalation for CVEs confirmed as actively exploited by CISA's Known Exploited Vulnerabilities catalog.
-- Tier 3 — Contextual Risk Score: Organization-specific scoring that factors in asset exposure, compliance requirements, and environmental risk.
+- Improve vulnerability prioritization accuracy
+- Reduce reliance on static CVSS scoring
+- Incorporate real-world exploitation likelihood
+- Integrate threat intelligence sources
+- Include business and operational context in risk calculations
+- Help security teams focus remediation efforts on the vulnerabilities that matter most
 
-### Threat Intelligence Integration
-The prioritization engine is backed by continuous ingestion and correlation of data from industry-standard sources:
+---
 
-- NVD — National Vulnerability Database
-- EPSS — Exploit Prediction Scoring System
-- CISA KEV — Known Exploited Vulnerabilities catalog
+## Data Sources
 
-### LLM-Powered Reporting
-Automated, analyst-ready reports generated per vulnerability or scan covering root cause analysis and remediation strategies. Designed to reduce the manual overhead typically placed on security analysts.
+ZYGANT integrates data from multiple industry-standard sources.
 
-### AI Chatbot Assistant
-A conversational assistant connected directly to the vulnerability and asset inventory. Analysts can query findings, ask follow-up questions, and explore remediation paths in natural language without digging through raw data.
+### National Vulnerability Database (NVD)
 
-### Vulnerability Management Dashboard
-A centralized web interface that supports the full vulnerability management lifecycle:
+Provides vulnerability metadata including:
 
-- Asset inventory with exposure and risk classification
-- Scan triggering and real-time status monitoring
-- CVE detail views with severity, status, and remediation tracking
-- Pre vs. post prioritization comparison views
-- Audit logs and support ticketing
+- CVE identifiers
+- CVSS metrics
+- Attack vector information
+- Impact ratings
+- Vulnerability descriptions
 
-## Built By
+### Exploit Prediction Scoring System (EPSS)
+
+Provides exploitability likelihood information, including:
+
+- EPSS Score
+- EPSS Percentile
+
+### CISA Known Exploited Vulnerabilities (KEV)
+
+Provides information on vulnerabilities that have been confirmed as actively exploited in the wild.
+
+---
+
+## Multi-Tier Prioritization Architecture
+
+ZYGANT uses a three-tier prioritization framework.
+
+### Tier 1 - Machine Learning Exploitation Likelihood Scoring
+
+Tier 1 uses a LightGBM Regressor trained on historical NVD and EPSS data.
+
+The model learns relationships between vulnerability characteristics and EPSS percentile in order to estimate exploitation likelihood using vulnerability metadata and CVSS features.
+
+#### Key Functionality
+
+- NVD, EPSS, and KEV dataset integration
+- Data preparation and normalization
+- Feature preprocessing and encoding
+- EPSS percentile prediction
+- Model evaluation using MAE, MSE, RMSE, and R² metrics
+
+The output of Tier 1 is an initial machine learning-based exploitation likelihood score.
+
+### Tier 2 - Threat Intelligence Prioritization
+
+Tier 2 incorporates external threat intelligence into the prioritization process.
+
+Currently, this layer is designed to leverage:
+
+- CISA Known Exploited Vulnerabilities (KEV)
+
+Vulnerabilities confirmed as actively exploited receive additional prioritization weight to ensure known threats are elevated above vulnerabilities with similar technical characteristics.
+
+### Tier 3 - Contextual Risk Scoring
+
+Tier 3 incorporates organization-specific context to prioritize vulnerabilities based on business impact and operational risk.
+
+Contextual factors include:
+
+- Asset criticality
+- Business impact
+- Operational risk
+- Network and host exposure
+- Data sensitivity
+- Compliance requirements
+- Asset ownership
+
+Tier 3 is represented using a synthetic enterprise environment called Secure Enterprise Risk Authority (SERA).
+
+---
+
+## Current Project Status
+
+### Completed
+
+- NVD data collection and cleaning
+- EPSS integration
+- KEV integration
+- Dataset preparation workflow
+- Tier 1 LightGBM regression model
+- Tier 1 model evaluation
+- SERA organizational design
+- Network architecture design
+- Contextual asset inventory development
+
+### In Progress
+
+- Tier 2 threat intelligence scoring implementation
+- Tier 3 contextual prioritization engine
+- Dashboard integration
+- SQLite data storage
+- Automated retraining workflow
+
+### Future Enhancements
+
+- Automated EPSS and KEV ingestion
+- Scheduled model retraining
+- Enhanced contextual scoring
+- Analyst reporting capabilities
+- LLM-assisted remediation guidance
+
+---
+
+## Technology Stack
+
+- Python
+- Pandas
+- Scikit-learn
+- LightGBM
+- SQLite
+- GitHub
+- HTML
+- CSS
+- JavaScript
+
+---
+
+## Team
+
 - Glaron Nirel Pinto
 - Tanveer Ismail Abdulaziz
 - Zoha Zainub Shabudeen
