@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}ZYGANT — Audit Logs{% endblock %}
+{% block nav_audit %}active{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>// AUDIT LOGS</h1>
+  <p>System activity log — logins, scans, report generation, and admin actions</p>
+</div>
+
+<!-- Stats -->
+<div class="stat-grid mb-2">
+  <div class="stat-card info">
+    <div class="stat-label">Total Events</div>
+    <div class="stat-value">24</div>
+  </div>
+  <div class="stat-card low">
+    <div class="stat-label">Logins</div>
+    <div class="stat-value">8</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-label">Scans Run</div>
+    <div class="stat-value">3</div>
+  </div>
+  <div class="stat-card medium">
+    <div class="stat-label">Admin Actions</div>
+    <div class="stat-value">5</div>
+  </div>
+  <div class="stat-card high">
+    <div class="stat-label">Reports Generated</div>
+    <div class="stat-value">4</div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card mb-2" style="padding: 1rem 1.5rem;">
+  <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+    <div>
+      <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">ACTION TYPE</label>
+      <select style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 2px;">
+        <option>All Actions</option>
+        <option>Login</option>
+        <option>Logout</option>
+        <option>Scan</option>
+        <option>Report</option>
+        <option>User Management</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">PERFORMED BY</label>
+      <select style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 2px;">
+        <option>All Users</option>
+        <option>g.pinto@zygant.io</option>
+        <option>t.abdulaziz@zygant.io</option>
+        <option>z.shabudeen@zygant.io</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">DATE RANGE</label>
+      <input type="date" style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 2px;" />
+    </div>
+  </div>
+</div>
+
+<!-- Audit Log Feed -->
+<div class="card">
+  <div class="card-title">ACTIVITY FEED — Mock Data</div>
+
+  <div style="padding: 0.5rem 0;">
+
+    <!-- Scan completed -->
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(46,213,115,0.1);border:1px solid rgba(46,213,115,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.85rem;">🔍</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9rem;">Vulnerability scan completed</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">SCN-0042 &mdash; All Assets &mdash; 195 vulnerabilities found</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Performed by: <span class="mono text-accent">g.pinto@zygant.io</span> &nbsp;|&nbsp; IP: 192.168.0.5</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">2025-05-24 09:42</div>
+    </div>
+
+    <!-- Login -->
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.85rem;">🔐</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9rem;">User login</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">Successful authentication</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Performed by: <span class="mono text-accent">g.pinto@zygant.io</span> &nbsp;|&nbsp; IP: 192.168.0.5</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">2025-05-24 09:30</div>
+    </div>
+
+    <!-- Report generated -->
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.85rem;">📄</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9rem;">Report generated</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">RPT-0018 &mdash; CVE-2024-1234 detailed remediation report</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Performed by: <span class="mono text-accent">t.abdulaziz@zygant.io</span> &nbsp;|&nbsp; IP: 192.168.0.6</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">2025-05-23 15:10</div>
+    </div>
+
+    <!-- User added -->
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,165,2,0.1);border:1px solid rgba(255,165,2,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.85rem;">👤</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9rem;">New user added</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">j.analyst@zygant.io &mdash; Role: Employee</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Performed by: <span class="mono text-accent">g.pinto@zygant.io</span> &nbsp;|&nbsp; IP: 192.168.0.5</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">2025-05-22 11:05</div>
+    </div>
+
+    <!-- Login Tanveer -->
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.85rem;">🔐</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9rem;">User login</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">Successful authentication</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Performed by: <span class="mono text-accent">t.abdulaziz@zygant.io</span> &nbsp;|&nbsp; IP: 192.168.0.6</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">2025-05-22 10:15</div>
+    </div>
+
+    <!-- Scan completed old -->
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(46,213,115,0.1);border:1px solid rgba(46,213,115,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.85rem;">🔍</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9rem;">Vulnerability scan completed</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">SCN-0041 &mdash; Servers Only &mdash; 88 vulnerabilities found</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Performed by: <span class="mono text-accent">t.abdulaziz@zygant.io</span> &nbsp;|&nbsp; IP: 192.168.0.6</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">2025-05-21 14:22</div>
+    </div>
+
+    <!-- Password changed -->
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.85rem;">🔑</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9rem;">Password changed</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">Account password updated for s.viewer@zygant.io</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Performed by: <span class="mono text-accent">g.pinto@zygant.io</span> &nbsp;|&nbsp; IP: 192.168.0.5</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">2025-05-20 09:55</div>
+    </div>
+
+    <!-- Login Zoha -->
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;">
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.85rem;">🔐</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9rem;">User login</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">Successful authentication</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Performed by: <span class="mono text-accent">z.shabudeen@zygant.io</span> &nbsp;|&nbsp; IP: 192.168.0.8</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">2025-05-19 09:15</div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
