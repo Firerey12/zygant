@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}ZYGANT — User Management{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>// USER MANAGEMENT</h1>
+  <p>Manage admin and employee accounts and role-based access</p>
+</div>
+
+<!-- Stats -->
+<div class="stat-grid mb-2">
+  <div class="stat-card info">
+    <div class="stat-label">Total Users</div>
+    <div class="stat-value">5</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-label">Admins</div>
+    <div class="stat-value">3</div>
+  </div>
+  <div class="stat-card info">
+    <div class="stat-label">Employees</div>
+    <div class="stat-value">2</div>
+  </div>
+  <div class="stat-card low">
+    <div class="stat-label">Active</div>
+    <div class="stat-value">4</div>
+  </div>
+  <div class="stat-card medium">
+    <div class="stat-label">Inactive</div>
+    <div class="stat-value">1</div>
+  </div>
+</div>
+
+<!-- Add User Bar -->
+<div class="card mb-2" style="padding: 1rem 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      <div>
+        <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">FILTER BY ROLE</label>
+        <select style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 2px;">
+          <option>All Roles</option>
+          <option>Admin</option>
+          <option>Employee</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 1px; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">FILTER BY STATUS</label>
+        <select style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); font-family: var(--font-display); font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 2px;">
+          <option>All</option>
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+    </div>
+    <button style="padding: 0.5rem 1.25rem; background: var(--accent); color: #000; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1.5px; font-weight: 700; border: none; border-radius: 2px; cursor: pointer;">
+      + ADD USER
+    </button>
+  </div>
+</div>
+
+<!-- User Table -->
+<div class="card">
+  <div class="card-title">REGISTERED USERS — Mock Data</div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Last Login</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono text-muted">001</td>
+          <td style="font-weight: 500;">Glaron Pinto</td>
+          <td class="mono text-accent" style="font-size:0.8rem;">g.pinto@zygant.io</td>
+          <td><span class="badge" style="background:rgba(100,80,220,0.15);color:#a78bfa;border:1px solid rgba(100,80,220,0.3);">Admin</span></td>
+          <td class="mono" style="font-size:0.8rem;">2025-05-24 09:30</td>
+          <td><span class="badge badge-low">Active</span></td>
+          <td>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid var(--border);color:var(--text-secondary);border-radius:2px;font-size:0.75rem;cursor:pointer;margin-right:4px;">Edit</button>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid rgba(255,71,87,0.3);color:var(--danger);border-radius:2px;font-size:0.75rem;cursor:pointer;">Disable</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">002</td>
+          <td style="font-weight: 500;">Tanveer Abdulaziz</td>
+          <td class="mono text-accent" style="font-size:0.8rem;">t.abdulaziz@zygant.io</td>
+          <td><span class="badge" style="background:rgba(100,80,220,0.15);color:#a78bfa;border:1px solid rgba(100,80,220,0.3);">Admin</span></td>
+          <td class="mono" style="font-size:0.8rem;">2025-05-24 10:15</td>
+          <td><span class="badge badge-low">Active</span></td>
+          <td>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid var(--border);color:var(--text-secondary);border-radius:2px;font-size:0.75rem;cursor:pointer;margin-right:4px;">Edit</button>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid rgba(255,71,87,0.3);color:var(--danger);border-radius:2px;font-size:0.75rem;cursor:pointer;">Disable</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">003</td>
+          <td style="font-weight: 500;">Zoha Shabudeen</td>
+          <td class="mono text-accent" style="font-size:0.8rem;">z.shabudeen@zygant.io</td>
+          <td><span class="badge" style="background:rgba(100,80,220,0.15);color:#a78bfa;border:1px solid rgba(100,80,220,0.3);">Admin</span></td>
+          <td class="mono" style="font-size:0.8rem;">2025-05-23 14:45</td>
+          <td><span class="badge badge-low">Active</span></td>
+          <td>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid var(--border);color:var(--text-secondary);border-radius:2px;font-size:0.75rem;cursor:pointer;margin-right:4px;">Edit</button>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid rgba(255,71,87,0.3);color:var(--danger);border-radius:2px;font-size:0.75rem;cursor:pointer;">Disable</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">004</td>
+          <td style="font-weight: 500;">John Analyst</td>
+          <td class="mono text-accent" style="font-size:0.8rem;">j.analyst@zygant.io</td>
+          <td><span class="badge" style="background:rgba(46,213,115,0.1);color:var(--success);border:1px solid rgba(46,213,115,0.3);">Employee</span></td>
+          <td class="mono" style="font-size:0.8rem;">2025-05-22 11:00</td>
+          <td><span class="badge badge-low">Active</span></td>
+          <td>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid var(--border);color:var(--text-secondary);border-radius:2px;font-size:0.75rem;cursor:pointer;margin-right:4px;">Edit</button>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid rgba(255,71,87,0.3);color:var(--danger);border-radius:2px;font-size:0.75rem;cursor:pointer;">Disable</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="mono text-muted">005</td>
+          <td style="font-weight: 500;">Sarah Viewer</td>
+          <td class="mono text-accent" style="font-size:0.8rem;">s.viewer@zygant.io</td>
+          <td><span class="badge" style="background:rgba(46,213,115,0.1);color:var(--success);border:1px solid rgba(46,213,115,0.3);">Employee</span></td>
+          <td class="mono" style="font-size:0.8rem;">2025-05-10 09:20</td>
+          <td><span class="badge badge-medium">Inactive</span></td>
+          <td>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid var(--border);color:var(--text-secondary);border-radius:2px;font-size:0.75rem;cursor:pointer;margin-right:4px;">Edit</button>
+            <button style="padding:0.2rem 0.6rem;background:transparent;border:1px solid rgba(46,213,115,0.3);color:var(--success);border-radius:2px;font-size:0.75rem;cursor:pointer;">Enable</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
