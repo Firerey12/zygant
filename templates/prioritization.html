@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}ZYGANT — Prioritization Comparison{% endblock %}
+{% block nav_home %}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>// PRIORITIZATION COMPARISON</h1>
+  <p>Side-by-side view of vulnerabilities before and after ZYGANT prioritization — placeholder data</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid-2 mb-2">
+  <div class="card" style="border-color: rgba(255,165,2,0.3);">
+    <div class="card-title" style="color:var(--warning);">PRE-PRIORITIZATION — Raw CVSS Ranking</div>
+    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">
+      Vulnerabilities ranked purely by CVSS score. High CVSS does not always mean high real-world risk.
+    </p>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:3px;padding:0.6rem 1rem;text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);">TOTAL</div>
+        <div style="font-family:var(--font-mono);font-size:1.4rem;color:var(--text-primary);">195</div>
+      </div>
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:3px;padding:0.6rem 1rem;text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);">AVG CVSS</div>
+        <div style="font-family:var(--font-mono);font-size:1.4rem;color:var(--warning);">6.8</div>
+      </div>
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:3px;padding:0.6rem 1rem;text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);">CRITICAL</div>
+        <div style="font-family:var(--font-mono);font-size:1.4rem;color:var(--danger);">12</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-color: rgba(0,212,255,0.3);">
+    <div class="card-title" style="color:var(--accent);">POST-PRIORITIZATION — ZYGANT Score Ranking</div>
+    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">
+      Re-ranked using ML scoring, KEV boost, EPSS, and contextual awareness. Action on what actually matters.
+    </p>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:3px;padding:0.6rem 1rem;text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);">TOTAL</div>
+        <div style="font-family:var(--font-mono);font-size:1.4rem;color:var(--text-primary);">195</div>
+      </div>
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:3px;padding:0.6rem 1rem;text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);">AVG SCORE</div>
+        <div style="font-family:var(--font-mono);font-size:1.4rem;color:var(--accent);">71.4</div>
+      </div>
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:3px;padding:0.6rem 1rem;text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);">KEV LISTED</div>
+        <div style="font-family:var(--font-mono);font-size:1.4rem;color:var(--success);">8</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side by Side Tables -->
+<div class="grid-2">
+
+  <!-- Pre-prioritization table -->
+  <div class="card">
+    <div class="card-title" style="color:var(--warning);">⚠ PRE — Ranked by CVSS Score</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>CVE ID</th>
+            <th>CVSS</th>
+            <th>Severity</th>
+            <th>Asset</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono text-muted">#1</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2024-1234</td>
+            <td class="mono text-danger">9.8</td>
+            <td><span class="badge badge-critical">Critical</span></td>
+            <td style="font-size:0.8rem;">web-server-01</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#2</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2024-5566</td>
+            <td class="mono text-danger">9.1</td>
+            <td><span class="badge badge-critical">Critical</span></td>
+            <td style="font-size:0.8rem;">db-server-02</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#3</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2023-4567</td>
+            <td class="mono" style="color:var(--warning);">8.1</td>
+            <td><span class="badge badge-high">High</span></td>
+            <td style="font-size:0.8rem;">db-server-02</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#4</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2024-7891</td>
+            <td class="mono" style="color:var(--warning);">7.5</td>
+            <td><span class="badge badge-high">High</span></td>
+            <td style="font-size:0.8rem;">app-server-03</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#5</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2023-8812</td>
+            <td class="mono" style="color:var(--warning);">7.2</td>
+            <td><span class="badge badge-high">High</span></td>
+            <td style="font-size:0.8rem;">firewall-01</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#6</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2024-3310</td>
+            <td class="mono">6.1</td>
+            <td><span class="badge badge-medium">Medium</span></td>
+            <td style="font-size:0.8rem;">api-gateway-01</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#7</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2023-2222</td>
+            <td class="mono">5.4</td>
+            <td><span class="badge badge-medium">Medium</span></td>
+            <td style="font-size:0.8rem;">web-server-01</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#8</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2023-9900</td>
+            <td class="mono text-success">3.2</td>
+            <td><span class="badge badge-low">Low</span></td>
+            <td style="font-size:0.8rem;">app-server-03</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Post-prioritization table -->
+  <div class="card">
+    <div class="card-title" style="color:var(--accent);">✦ POST — Ranked by ZYGANT Score</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>CVE ID</th>
+            <th>ZYGANT</th>
+            <th>KEV</th>
+            <th>EPSS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono text-muted">#1</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2024-1234</td>
+            <td class="mono" style="color:var(--accent);font-weight:700;">97.4</td>
+            <td><span class="badge badge-low">Yes</span></td>
+            <td class="mono">0.91</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#2</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2023-8812</td>
+            <td class="mono" style="color:var(--accent);font-weight:700;">91.2</td>
+            <td><span class="badge badge-low">Yes</span></td>
+            <td class="mono">0.87</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#3</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2024-5566</td>
+            <td class="mono" style="color:var(--accent);font-weight:700;">88.6</td>
+            <td><span class="badge badge-low">Yes</span></td>
+            <td class="mono">0.83</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#4</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2024-7891</td>
+            <td class="mono" style="color:var(--accent);font-weight:700;">76.3</td>
+            <td><span class="badge badge-medium">No</span></td>
+            <td class="mono">0.65</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#5</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2023-4567</td>
+            <td class="mono" style="color:var(--accent);font-weight:700;">71.8</td>
+            <td><span class="badge badge-medium">No</span></td>
+            <td class="mono">0.74</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#6</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2024-3310</td>
+            <td class="mono" style="color:var(--accent);font-weight:700;">54.1</td>
+            <td><span class="badge badge-medium">No</span></td>
+            <td class="mono">0.42</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#7</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2023-2222</td>
+            <td class="mono" style="color:var(--accent);font-weight:700;">38.7</td>
+            <td><span class="badge badge-medium">No</span></td>
+            <td class="mono">0.31</td>
+          </tr>
+          <tr>
+            <td class="mono text-muted">#8</td>
+            <td class="mono text-accent" style="font-size:0.8rem;">CVE-2023-9900</td>
+            <td class="mono" style="color:var(--accent);font-weight:700;">18.2</td>
+            <td><span class="badge badge-medium">No</span></td>
+            <td class="mono">0.12</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:0.75rem;">
+      Note: CVE-2023-8812 jumps from #5 to #2 after ZYGANT scoring — KEV listed + internet-facing firewall asset.
+      CVE-2024-5566 drops from #2 to #3 despite high CVSS — low EPSS and no KEV listing.
+    </p>
+  </div>
+
+</div>
+
+{% endblock %}
