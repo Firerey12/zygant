@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}ZYGANT — Support{% endblock %}
+{% block nav_support %}active{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>// SUPPORT</h1>
+  <p>Submit a support ticket — tickets are stored and visible to admins</p>
+</div>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div style="padding:0.75rem 1rem;border-radius:3px;margin-bottom:1rem;
+        background:{% if category == 'success' %}rgba(46,213,115,0.1){% else %}rgba(255,71,87,0.1){% endif %};
+        border:1px solid {% if category == 'success' %}rgba(46,213,115,0.3){% else %}rgba(255,71,87,0.3){% endif %};
+        color:{% if category == 'success' %}var(--success){% else %}var(--danger){% endif %};
+        font-size:0.875rem;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="grid-2">
+
+  <!-- Submit Ticket Form -->
+  <div class="card">
+    <div class="card-title">SUBMIT NEW TICKET</div>
+    <form method="POST" action="/support/submit">
+
+      <div style="margin-bottom:1rem;">
+        <label style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:1px;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">ISSUE TYPE</label>
+        <select name="issue_type" style="width:100%;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);font-family:var(--font-display);font-size:0.85rem;padding:0.4rem 0.75rem;border-radius:2px;">
+          <option>Bug Report</option>
+          <option>Feature Request</option>
+          <option>Access Issue</option>
+          <option>Data Error</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:1px;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">SUBJECT</label>
+        <input type="text" name="subject" placeholder="Brief description of the issue" required
+          style="width:100%;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);font-family:var(--font-display);font-size:0.85rem;padding:0.4rem 0.75rem;border-radius:2px;outline:none;" />
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:1px;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">DESCRIPTION</label>
+        <textarea name="description" rows="5" placeholder="Describe the issue in detail..." required
+          style="width:100%;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);font-family:var(--font-display);font-size:0.85rem;padding:0.4rem 0.75rem;border-radius:2px;outline:none;resize:vertical;"></textarea>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:1px;color:var(--text-secondary);display:block;margin-bottom:0.35rem;">PRIORITY</label>
+        <select name="priority" style="width:100%;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);font-family:var(--font-display);font-size:0.85rem;padding:0.4rem 0.75rem;border-radius:2px;">
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
+      </div>
+
+      <button type="submit" style="width:100%;padding:0.75rem;background:var(--accent);color:#000;font-family:var(--font-mono);font-size:0.8rem;font-weight:700;letter-spacing:2px;border:none;border-radius:2px;cursor:pointer;">
+        SUBMIT TICKET →
+      </button>
+
+    </form>
+  </div>
+
+  <!-- Ticket History -->
+  <div class="card">
+    <div class="card-title">MY TICKETS</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Subject</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if tickets %}
+            {% for ticket in tickets %}
+            <tr>
+              <td class="mono text-accent" style="font-size:0.8rem;">TKT-{{ '%03d'|format(ticket[0]) }}</td>
+              <td style="font-size:0.85rem;">{{ ticket[1] }}</td>
+              <td style="font-size:0.8rem;">{{ ticket[2] }}</td>
+              <td>
+                {% if ticket[3] == 'High' %}<span class="badge badge-critical">High</span>
+                {% elif ticket[3] == 'Medium' %}<span class="badge badge-medium">Medium</span>
+                {% else %}<span class="badge badge-low">Low</span>{% endif %}
+              </td>
+              <td>
+                {% if ticket[4] == 'Open' %}<span class="badge badge-high">Open</span>
+                {% elif ticket[4] == 'In Progress' %}<span class="badge badge-medium">In Progress</span>
+                {% else %}<span class="badge badge-low">Resolved</span>{% endif %}
+              </td>
+              <td class="mono" style="font-size:0.78rem;">{{ ticket[5] }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <!-- Mock data shown before DB is wired up -->
+            <tr>
+              <td class="mono text-accent" style="font-size:0.8rem;">TKT-005</td>
+              <td style="font-size:0.85rem;">Dashboard chart not loading</td>
+              <td style="font-size:0.8rem;">Bug Report</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-high">Open</span></td>
+              <td class="mono" style="font-size:0.78rem;">2025-06-07</td>
+            </tr>
+            <tr>
+              <td class="mono text-accent" style="font-size:0.8rem;">TKT-004</td>
+              <td style="font-size:0.85rem;">Export to PDF not working</td>
+              <td style="font-size:0.8rem;">Bug Report</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-low">Resolved</span></td>
+              <td class="mono" style="font-size:0.78rem;">2025-06-04</td>
+            </tr>
+            <tr>
+              <td class="mono text-accent" style="font-size:0.8rem;">TKT-003</td>
+              <td style="font-size:0.85rem;">Add dark mode toggle</td>
+              <td style="font-size:0.8rem;">Feature Request</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td><span class="badge badge-medium">In Progress</span></td>
+              <td class="mono" style="font-size:0.78rem;">2025-06-01</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Admin view — all tickets -->
+    <div style="margin-top:1.5rem;">
+      <div class="card-title">ADMIN VIEW — ALL TICKETS</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Subject</th>
+              <th>Submitted By</th>
+              <th>Priority</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono text-accent" style="font-size:0.8rem;">TKT-005</td>
+              <td style="font-size:0.85rem;">Dashboard chart not loading</td>
+              <td class="mono" style="font-size:0.78rem;">g.pinto@zygant.io</td>
+              <td><span class="badge badge-high">High</span></td>
+              <td><span class="badge badge-high">Open</span></td>
+            </tr>
+            <tr>
+              <td class="mono text-accent" style="font-size:0.8rem;">TKT-004</td>
+              <td style="font-size:0.85rem;">Export to PDF not working</td>
+              <td class="mono" style="font-size:0.78rem;">j.analyst@zygant.io</td>
+              <td><span class="badge badge-medium">Medium</span></td>
+              <td><span class="badge badge-low">Resolved</span></td>
+            </tr>
+            <tr>
+              <td class="mono text-accent" style="font-size:0.8rem;">TKT-003</td>
+              <td style="font-size:0.85rem;">Add dark mode toggle</td>
+              <td class="mono" style="font-size:0.78rem;">g.pinto@zygant.io</td>
+              <td><span class="badge badge-low">Low</span></td>
+              <td><span class="badge badge-medium">In Progress</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
