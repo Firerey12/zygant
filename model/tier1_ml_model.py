@@ -25,7 +25,6 @@ Important ZYGANT logic:
 
 Current output:
 - Trains and evaluates the Tier 1 model.
-- Does not save the model yet.
 """
 
 from pathlib import Path
@@ -49,9 +48,7 @@ from sklearn.preprocessing import OneHotEncoder
 # Input dataset created from cleaned NVD + latest EPSS + latest KEV merge.
 INPUT_DATASET_PATH = Path("Datasets/nvd_epss_kev_merged.csv")
 
-# Model saving is intentionally not used yet.
-# The model will be saved later when all ZYGANT tiers are finalized.
-# MODEL_OUTPUT_PATH = Path("Model/tier1_lightgbm_regressor.joblib")
+MODEL_OUTPUT_PATH = Path("Model/tier1_lightgbm_regressor.joblib")
 
 
 # ============================================================
@@ -294,10 +291,24 @@ def train_tier1_model() -> None:
     # Evaluate how well the model predicted EPSS percentile.
     evaluate_model(y_test, y_pred)
 
-    # Model saving is intentionally skipped for now.
-    # It will be added later when Tier 1, Tier 2, and Tier 3 are finalized.
+    # Create the Model folder if it does not exist.
+    MODEL_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save all important Tier 1 artifacts together.
+    artifact = {
+        "model": pipeline,
+        "feature_columns": list(X.columns),
+        "categorical_columns": categorical_cols,
+        "numeric_columns": numeric_cols,
+        "trained_at": datetime.now().isoformat(),
+        "notes": "Tier 1 LightGBM model trained to predict EPSS percentile using historical NVD + EPSS + KEV data."
+    }
+    
+    # Save the artifact so Tier 2 and Tier 3 can load it later.
+    joblib.dump(artifact, MODEL_OUTPUT_PATH)
+    
     print("\nTier 1 model training completed successfully.")
-    print("Model was trained and evaluated, but not saved yet.")
+    print("Tier 1 model artifact saved to:", MODEL_OUTPUT_PATH)
 
 
 # ============================================================
