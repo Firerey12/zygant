@@ -1,0 +1,257 @@
+-- ZYGANT PostgreSQL Schema
+-- Apply with: python db/init_db.py
+-- Or directly: psql -U <user> -d <dbname> -f db/schema.sql
+
+BEGIN;
+
+-- ============================================================
+-- ENUM TYPES
+-- ============================================================
+
+CREATE TYPE user_role         AS ENUM ('admin', 'employee');
+
+CREATE TYPE asset_type        AS ENUM (
+    'web_server', 'database', 'app_server', 'gateway',
+    'endpoint', 'firewall', 'mail_server', 'backup_server',
+    'dev_machine', 'other'
+);
+
+-- Used for both asset criticality (manually assigned Tier 3 input)
+-- and vulnerability priority (computed Tier 1+2 output)
+CREATE TYPE criticality_level AS ENUM ('critical', 'high', 'medium', 'low');
+
+CREATE TYPE scan_type_t       AS ENUM ('full', 'quick', 'custom');
+
+CREATE TYPE scan_scope_t      AS ENUM (
+    'all_assets', 'servers_only', 'endpoints_only', 'single_asset'
+);
+
+CREATE TYPE scan_status_t     AS ENUM ('pending', 'running', 'complete', 'failed');
+
+CREATE TYPE vuln_status_t     AS ENUM ('open', 'in_review', 'resolved', 'suppressed');
+
+-- How the vulnerability record was created
+CREATE TYPE vuln_source_t     AS ENUM ('wazuh', 'upload', 'manual');
+
+CREATE TYPE audit_action_t    AS ENUM (
+    'login', 'logout',
+    'scan_triggered', 'scan_completed',
+    'report_generated',
+    'user_created', 'user_updated', 'user_disabled', 'user_enabled', 'password_changed',
+    'vuln_status_changed',
+    'upload_processed'
+);
+
+-- ============================================================
+-- USERS
+-- ============================================================
+
+CREATE TABLE users (
+    id              SERIAL PRIMARY KEY,
+    full_name       TEXT NOT NULL,
+    email           TEXT NOT NULL UNIQUE,
+    password_hash   TEXT NOT NULL,
+    role            user_role NOT NULL DEFAULT 'employee',
+    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+    last_login_at   TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- AGENTS  (Wazuh-managed hosts / manually registered assets)
+-- ============================================================
+
+CREATE TABLE agents (
+    id              SERIAL PRIMARY KEY,
+    wazuh_agent_id  TEXT UNIQUE,                            -- NULL for manually registered assets
+    hostname        TEXT NOT NULL,
+    ip_address      INET,
+    agent_status    TEXT,                                   -- active | disconnected | never_connected | pending
+    agent_version   TEXT,
+    os_name         TEXT,
+    os_version      TEXT,
+    architecture    TEXT,
+    asset_type      asset_type NOT NULL DEFAULT 'other',
+    owner           TEXT,                                   -- responsible team / department
+    -- Tier 3: manually assigned business criticality, used to adjust final scoring
+    criticality     criticality_level NOT NULL DEFAULT 'medium',
+    last_seen_at    TIMESTAMPTZ,
+    last_scanned_at TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- CVES  (NVD + EPSS + KEV enrichment data; one row per CVE ID)
+-- ============================================================
+
+CREATE TABLE cves (
+    cve_id                TEXT PRIMARY KEY,                 -- e.g. CVE-2024-1234 (always uppercase)
+    description           TEXT,
+    published_at          TIMESTAMPTZ,
+    last_modified_at      TIMESTAMPTZ,
+
+    -- CVSS (v3.1 preferred; falls back to v3.0, then v2)
+    base_severity         TEXT,                            -- CRITICAL | HIGH | MEDIUM | LOW
+    cvss_base_score       NUMERIC(4,1),                    -- 0.0 – 10.0
+    attack_vector         TEXT,
+    attack_complexity     TEXT,
+    privileges_required   TEXT,
+    user_interaction      TEXT,
+    scope                 TEXT,
+    confidentiality_impact TEXT,
+    integrity_impact      TEXT,
+    availability_impact   TEXT,
+    exploitability_score  NUMERIC(4,2),
+    impact_score          NUMERIC(4,2),
+    days_since_published  INTEGER,
+
+    -- EPSS (Exploit Prediction Scoring System)
+    epss_score            NUMERIC(8,7),                    -- 0.0000000 – 1.0000000
+    epss_percentile       NUMERIC(8,7),
+
+    -- CISA KEV (Known Exploited Vulnerabilities)
+    is_kev                BOOLEAN NOT NULL DEFAULT FALSE,
+    kev_date_added        DATE,
+
+    enriched_at           TIMESTAMPTZ,                     -- timestamp of last NVD/EPSS/KEV fetch
+    created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- SCANS
+-- ============================================================
+
+CREATE TABLE scans (
+    id              SERIAL PRIMARY KEY,
+    scan_ref        TEXT UNIQUE,                           -- e.g. SCN-0042; generated by app
+    scan_type       scan_type_t NOT NULL DEFAULT 'full',
+    scope           scan_scope_t NOT NULL DEFAULT 'all_assets',
+    status          scan_status_t NOT NULL DEFAULT 'pending',
+    triggered_by    INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    assets_scanned  INTEGER,
+    vulns_found     INTEGER,
+    started_at      TIMESTAMPTZ,
+    completed_at    TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- VULNERABILITIES  (one row per agent + CVE pair)
+--
+-- Scores are overwritten on each rescore run (no history kept).
+-- Source tracks how the record was created.
+-- agent_id is nullable: CSV uploads arrive without agent context.
+-- ============================================================
+
+CREATE TABLE vulnerabilities (
+    id              SERIAL PRIMARY KEY,
+    agent_id        INTEGER REFERENCES agents(id) ON DELETE CASCADE,  -- NULL for CSV uploads
+    cve_id          TEXT NOT NULL REFERENCES cves(cve_id) ON DELETE CASCADE,
+    scan_id         INTEGER REFERENCES scans(id) ON DELETE SET NULL,
+    source          vuln_source_t NOT NULL DEFAULT 'upload',
+
+    package_name    TEXT,
+    package_version TEXT,
+
+    -- Tier 1 + 2 scoring (overwritten in place on each rescore)
+    tier1_ml_score  NUMERIC(6,5),                          -- LightGBM predicted EPSS percentile
+    kev_boost       NUMERIC(6,5),                          -- proportional Tier 2 additive boost
+    final_score     NUMERIC(6,5),                          -- tier1_ml_score + kev_boost, clipped 0–1
+    priority        criticality_level,
+    rank            INTEGER,
+    scored_at       TIMESTAMPTZ,
+
+    status          vuln_status_t NOT NULL DEFAULT 'open',
+    discovered_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- One record per Wazuh agent + CVE combination
+CREATE UNIQUE INDEX idx_vuln_agent_cve
+    ON vulnerabilities(agent_id, cve_id)
+    WHERE agent_id IS NOT NULL;
+
+-- One record per CVE for CSV-uploaded vulnerabilities (no agent)
+CREATE UNIQUE INDEX idx_vuln_upload_cve
+    ON vulnerabilities(cve_id)
+    WHERE agent_id IS NULL;
+
+-- ============================================================
+-- VULNERABILITY STATUS HISTORY
+--
+-- Written by application code whenever status changes.
+-- old_status is NULL on the initial 'open' insertion if recorded.
+-- ============================================================
+
+CREATE TABLE vulnerability_status_history (
+    id                SERIAL PRIMARY KEY,
+    vulnerability_id  INTEGER NOT NULL REFERENCES vulnerabilities(id) ON DELETE CASCADE,
+    old_status        vuln_status_t,
+    new_status        vuln_status_t NOT NULL,
+    changed_by        INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    note              TEXT,
+    changed_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- REPORTS  (Ollama-generated PDF files)
+-- ============================================================
+
+CREATE TABLE reports (
+    id                SERIAL PRIMARY KEY,
+    report_ref        TEXT UNIQUE,                         -- e.g. RPT-0018; generated by app
+    vulnerability_id  INTEGER NOT NULL REFERENCES vulnerabilities(id) ON DELETE CASCADE,
+    file_path         TEXT NOT NULL,
+    generated_by      INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    generated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- AUDIT LOG
+-- ============================================================
+
+CREATE TABLE audit_log (
+    id           SERIAL PRIMARY KEY,
+    user_id      INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    action       audit_action_t NOT NULL,
+    entity_type  TEXT,                                     -- user | scan | vulnerability | report | agent
+    entity_id    TEXT,                                     -- string representation of the affected entity's PK
+    detail       TEXT,
+    ip_address   INET,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- INDEXES
+-- ============================================================
+
+-- Vulnerabilities: dashboard ordering and filtering
+CREATE INDEX idx_vuln_final_score   ON vulnerabilities(final_score DESC NULLS LAST);
+CREATE INDEX idx_vuln_priority      ON vulnerabilities(priority);
+CREATE INDEX idx_vuln_status        ON vulnerabilities(status);
+CREATE INDEX idx_vuln_cve           ON vulnerabilities(cve_id);
+CREATE INDEX idx_vuln_agent         ON vulnerabilities(agent_id);
+
+-- CVEs: KEV and severity lookups
+CREATE INDEX idx_cve_is_kev         ON cves(is_kev) WHERE is_kev = TRUE;
+CREATE INDEX idx_cve_base_severity  ON cves(base_severity);
+
+-- Scans: recent scan listing
+CREATE INDEX idx_scan_status        ON scans(status);
+CREATE INDEX idx_scan_created       ON scans(created_at DESC);
+
+-- Status history: vulnerability detail timeline
+CREATE INDEX idx_status_hist_vuln   ON vulnerability_status_history(vulnerability_id);
+CREATE INDEX idx_status_hist_time   ON vulnerability_status_history(changed_at DESC);
+
+-- Audit log: filtered by user, action, or date
+CREATE INDEX idx_audit_user         ON audit_log(user_id);
+CREATE INDEX idx_audit_action       ON audit_log(action);
+CREATE INDEX idx_audit_created      ON audit_log(created_at DESC);
+
+COMMIT;
