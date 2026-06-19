@@ -343,7 +343,224 @@ def apply_kev_boost(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ============================================================
-# STEP 6 - PRIORITY LABELS
+# STEP 6 - APPLY TIER 3 CONTEXTUAL AWARENESS
+# ============================================================
+
+def map_label_score(value, score_map: dict, default: float = 0.0) -> float:
+    """
+    Convert a contextual label into a numeric score between 0 and 1.
+
+    This keeps Tier 3 rule-based, explainable, and easy to tune later.
+    """
+
+    if pd.isna(value):
+        return default
+
+    normalized_value = str(value).strip().lower()
+
+    return score_map.get(normalized_value, default)
+
+
+def score_compliance(value) -> float:
+    """
+    Score compliance impact.
+
+    If multiple compliance labels exist, the highest score is used because one
+    strong regulatory requirement is enough to increase business risk.
+    """
+
+    if pd.isna(value):
+        return 0.0
+
+    value_text = str(value).strip().lower()
+
+    # These labels match the SERA dataset values:
+    # "GDPR, PCI-DSS, PII", "GDPR", "GDPR, PII", and "None".
+    compliance_scores = {
+        "none": 0.00,
+        "pii": 0.65,
+        "gdpr": 0.80,
+        "pci-dss": 1.00,
+        "pci_dss": 1.00,
+        "pci": 1.00
+    }
+
+    matched_scores = [
+        score
+        for label, score in compliance_scores.items()
+        if label in value_text
+    ]
+
+    return max(matched_scores) if matched_scores else 0.0
+
+
+def calculate_context_score(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate Tier 3 contextual score.
+
+    Only the selected contextual factors are used:
+    - Business Criticality
+    - Operational Disruption
+    - Business Impact
+    - Data Classification
+    - Privilege Level
+    - Network Exposure
+    - Host Exposure
+    - Compliance
+    - Blast Radius
+
+    The weighted score stays between 0 and 1 because every factor is normalized
+    and the weights add up to 1.00.
+    """
+
+    print("\n=== Step 5: Calculating Tier 3 contextual score ===")
+
+    df = df.copy()
+
+    # Business criticality has the highest weight because it shows how essential the asset is to the organization.
+    business_criticality_map = {
+        "low": 0.25,
+        "medium": 0.50,
+        "high": 0.75,
+        "critical": 1.00
+    }
+
+    # Business impact is highly weighted because it measures the damage if the asset is compromised.
+    business_impact_map = {
+        "low": 0.25,
+        "medium": 0.50,
+        "high": 0.75,
+        "critical": 1.00
+    }
+
+    # Operational disruption is important because severe disruption can stop business services.
+    operational_disruption_map = {
+        "negligible": 0.10,
+        "minor": 0.35,
+        "significant": 0.75,
+        "severe": 1.00
+    }
+
+    # Data classification is important because restricted/confidential data increases breach impact.
+    data_classification_map = {
+        "internal": 0.35,
+        "confidential": 0.75,
+        "restricted": 1.00
+    }
+
+    # Privilege level matters because privileged systems can increase attacker movement and control.
+    privilege_level_map = {
+        "standard": 0.30,
+        "elevated": 0.70,
+        "privileged": 1.00
+    }
+
+    # Network exposure matters because externally reachable assets are easier for attackers to target.
+    network_exposure_map = {
+        "isolated": 0.10,
+        "internal": 0.40,
+        "dmz": 0.75,
+        "external": 1.00
+    }
+
+    # Host exposure matters because highly exposed hosts increase the chance of spread or access.
+    host_exposure_map = {
+        "low": 0.25,
+        "medium": 0.60,
+        "high": 1.00
+    }
+
+    # Blast radius matters because core infrastructure issues can affect many systems at once.
+    blast_radius_map = {
+        "standalone": 0.25,
+        "shared": 0.60,
+        "core infrastructure": 1.00
+    }
+
+    # Convert the selected contextual labels into numeric scores.
+    df["business_criticality_score"] = df.get("business_criticality", pd.Series(index=df.index)).apply(
+        lambda x: map_label_score(x, business_criticality_map)
+    )
+
+    df["business_impact_score"] = df.get("business_impact", pd.Series(index=df.index)).apply(
+        lambda x: map_label_score(x, business_impact_map)
+    )
+
+    df["operational_disruption_score"] = df.get("operational_disruption", pd.Series(index=df.index)).apply(
+        lambda x: map_label_score(x, operational_disruption_map)
+    )
+
+    df["data_classification_score"] = df.get("data_classification", pd.Series(index=df.index)).apply(
+        lambda x: map_label_score(x, data_classification_map)
+    )
+
+    df["privilege_level_score"] = df.get("privilege_level", pd.Series(index=df.index)).apply(
+        lambda x: map_label_score(x, privilege_level_map)
+    )
+
+    df["network_exposure_score"] = df.get("network_exposure", pd.Series(index=df.index)).apply(
+        lambda x: map_label_score(x, network_exposure_map)
+    )
+
+    df["host_exposure_score"] = df.get("host_exposure", pd.Series(index=df.index)).apply(
+        lambda x: map_label_score(x, host_exposure_map)
+    )
+
+    df["blast_radius_score"] = df.get("blast_radius", pd.Series(index=df.index)).apply(
+        lambda x: map_label_score(x, blast_radius_map)
+    )
+
+    df["compliance_score"] = df.get("compliance", pd.Series(index=df.index)).apply(score_compliance)
+
+    # Weighted contextual score.
+    # Business criticality and business impact lead the score because they best represent business risk.
+    df["context_score"] = (
+        df["business_criticality_score"] * 0.22 +
+        df["business_impact_score"] * 0.18 +
+        df["operational_disruption_score"] * 0.14 +
+        df["data_classification_score"] * 0.13 +
+        df["network_exposure_score"] * 0.11 +
+        df["privilege_level_score"] * 0.09 +
+        df["blast_radius_score"] * 0.06 +
+        df["host_exposure_score"] * 0.04 +
+        df["compliance_score"] * 0.03
+    ).clip(lower=0, upper=1)
+
+    return df
+
+
+def apply_contextual_boost(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply Tier 3 contextual boost after Tier 2 scoring.
+
+    Formula:
+    context_boost = context_score * MAX_CONTEXT_BOOST * (1 - tier2_score)
+
+    This uses remaining score capacity so Tier 3 improves prioritization without
+    making every vulnerability Critical.
+    """
+
+    print("\n=== Step 6: Applying Tier 3 contextual boost ===")
+
+    df = df.copy()
+
+    if "tier2_score" not in df.columns:
+        raise ValueError("tier2_score must exist before applying Tier 3 context boost.")
+
+    # Calculate business/context score from selected SERA contextual factors.
+    df = calculate_context_score(df)
+
+    # Controlled context boost prevents score inflation while still allowing business context to influence priority.
+    df["context_boost"] = df["context_score"] * MAX_CONTEXT_BOOST * (1 - df["tier2_score"])
+
+    # Final ZYGANT score combines Tier 1 exploitability, Tier 2 KEV intelligence, and Tier 3 business context.
+    df["final_score"] = (df["tier2_score"] + df["context_boost"]).clip(lower=0, upper=1)
+
+    return df
+
+
+# ============================================================
+# STEP 7 - PRIORITY LABELS
 # ============================================================
 
 def map_priority(score: float) -> str:
@@ -363,7 +580,7 @@ def map_priority(score: float) -> str:
 
 
 # ============================================================
-# STEP 7 - SAVE FINAL PRIORITIZED OUTPUT
+# STEP 8 - SAVE FINAL PRIORITIZED OUTPUT
 # ============================================================
 
 def save_prioritized_results(df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
@@ -374,7 +591,7 @@ def save_prioritized_results(df: pd.DataFrame, output_path: Path) -> pd.DataFram
     This makes the output usable for local review and dashboard integration later.
     """
 
-    print("\n=== Step 5: Saving prioritized results ===")
+    print("\n=== Step 7: Saving prioritized results ===")
 
     df = df.copy()
 
@@ -396,6 +613,10 @@ def save_prioritized_results(df: pd.DataFrame, output_path: Path) -> pd.DataFram
         "epss_percentile",
         "is_kev",
         "tier1_ml_score",
+        "kev_boost",
+        "tier2_score",
+        "context_score",
+        "context_boost",
         "final_score",
         "priority"
     ]
@@ -418,6 +639,12 @@ def save_prioritized_results(df: pd.DataFrame, output_path: Path) -> pd.DataFram
     print("\nKEV distribution:")
     print(df["is_kev"].value_counts())
 
+    print("\nAverage score breakdown:")
+    print("Tier 1 average:", round(df["tier1_ml_score"].mean(), 4))
+    print("Tier 2 average:", round(df["tier2_score"].mean(), 4))
+    print("Context average:", round(df["context_score"].mean(), 4))
+    print("Final average:", round(df["final_score"].mean(), 4))
+
     return df[existing_columns]
 
 
@@ -435,7 +662,8 @@ def run_zygant_prioritization() -> pd.DataFrame:
     3. Load trained Tier 1 model artifact.
     4. Predict Tier 1 score.
     5. Apply Tier 2 KEV boost.
-    6. Save prioritized CSV locally.
+    6. Apply Tier 3 contextual awareness boost.
+    7. Save prioritized CSV locally.
     """
 
     print("Starting ZYGANT local prioritization workflow...")
@@ -452,7 +680,10 @@ def run_zygant_prioritization() -> pd.DataFrame:
     # Step 4: Apply Tier 2 KEV boost.
     scored_df = apply_kev_boost(scored_df)
 
-    # Step 5: Save prioritized output.
+    # Step 5: Apply Tier 3 contextual awareness.
+    scored_df = apply_contextual_boost(scored_df)
+
+    # Step 6: Save prioritized output.
     output_df = save_prioritized_results(scored_df, PRIORITIZED_OUTPUT_PATH)
 
     print("\nZYGANT prioritization completed successfully.")
